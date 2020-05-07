@@ -43,8 +43,12 @@ lexer ('(' : xs) = ParA:(lexer xs)
 lexer (')' : xs) = ParC:(lexer xs)
 lexer ('+' : xs) = (Oper '+'):(lexer xs)
 lexer ('*' : xs) = (Oper '*'):(lexer xs)
+lexer ('l':'e':'t':' ':xs) = (Rsv Let):(lexe xs) 
+lexer ('i':'n':' ':xs) = (Rsv In):(lexer xs)
 lexer ('p':'r':'e':'d':' ':xs) = (Rsv Pred):(lexer xs)
 lexer ('s':'u':'c'::' ':xs) = (Rsv Suc):(lexer xs)
+lexer ('e':'n':'d':' ':xs) = (Rsv End):(lexer xs)
+lexer (' ':xs) = lexer xs
 lexer (x:xs)
 	| isDigit (x) = lexDigit x xs
 	| otherwise = (Unkwn x):(lexer xs)
