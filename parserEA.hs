@@ -1,3 +1,4 @@
+---------------------------------------------------------------------
 module ParserEA where
 
 import LexerEA
@@ -7,13 +8,16 @@ import LexerEA
    de sintáxis abstracta de una expresión aritmética, 
    por la siguiente gramática. 
      AsaEA ::= Cons Int             (Para representar los números)
-              | Sum AsaEA AsaEA     (Para representar las sumas)  
+              | Sum AsaEA AsaEA     (Para representar las sumas)
+              | Rest AsaEA AsaEA    (Para representar las Restas)
+              | Div AsaEA AsaEA    (Para representar las Diviciones)
               | Prod AsaEA AsaEA    (Para representar las multiplicaciones)  
               | Scs AsaEA           (Para representar la función sucesor)  
-              | Prd AsaEA           (Para representar la función predecesor)  
+              | Prd AsaEA           (Para representar la función predecesor) 
+              | 
    ****************************************************************-}
 
-data AsaEA = Const Int | Sum AsaEA AsaEA | Prod AsaEA AsaEA | Scs AsaEA | Prd AsaEA
+data AsaEA = Const Int | Sum AsaEA AsaEA | Rest AsaEA AsaEA | Div AsaEA AsaEA | Prod AsaEA AsaEA | Scs AsaEA | Prd AsaEA
              deriving Show
 
 {- ***************************************************************
@@ -72,7 +76,10 @@ parserE tokens =
      []                  -> (e1', [])    
      (Oper '+'):rst'    -> let         
                             (e2', rst'') =  parserE rst'  
-                          in (Sum e1' e2', rst'')  
+                          in (Sum e1' e2', rst'')
+     (Oper '-'):rst'    -> let         
+                            (e2', rst'') =  parserE rst'  
+                          in (Rest e1' e2', rst'')  
      _  -> (e1', rst)
    where 
     (e1', rst) = parserT tokens
@@ -106,6 +113,9 @@ parserT tokens =
     (Oper '*'):rst'     -> let
                              (e2', rst'') =  parserF rst'
                            in (Prod e1' e2', rst'')
+    (Oper '/'):rst'     -> let
+                             (e2', rst'') =  parserF rst'
+                           in (Div e1' e2', rst'')
     _                   -> (e1',rst)
 
   where 
@@ -152,5 +162,47 @@ parserF (Rsv Pred:tokens) = (Prd tkns2, rest)  -- Predecesor
  where
   (tkns2,rest) = parserF tokens
 
+parserF (Rsv Let:tokens) = (Let tkns2, rest)  -- Predecesor
+ where
+  (tkns2,rest) = parserF tokens
+
 
 parserF tokens = error ("Error gramatical iniciando en : " ++ show tokens)
+
+
+
+
+--------------ej4
+
+type PControl = [ Op ]
+
+data Op = METE AsaEA | SUM Int |RES Int|PROD Int |DIV Int
+
+
+
+
+eval2::AsaEA ->Int
+eval2 (Const n) = n
+eval2 (Sum x y) = (eval2 x)+ (eval2 y)
+eval2 (Rest x y) = (eval2 x)- (eval2 y)
+eval2 (Prod x y) = (eval2 x) * (eval2 y)
+eval2 (Div x y) = (eval2 x) `div` (eval2 y) ---Usamos `div` por que regresa un entero / regresa flotante
+
+
+eval :: AsaEA -> PControl -> Int
+eval ( Const n ) p = ejec p n
+eval ( Sum x y ) p = eval x ( METE y : p )
+eval ( Rest x y ) p = eval x ( METE y : p )
+eval ( Prod x y ) p = eval x ( METE y : p )
+
+ejec :: [ Op ] -> Int -> Int
+ejec [] n = n
+ejec ( METE y : p ) n = eval y ( SUM n : p )
+ejec ( SUM n : p ) m = ejec p ( n + m )
+ejec ( RES n : p ) m = ejec p ( n - m )
+ejec ( PROD n : p ) m = ejec p ( n * m )
+
+
+interp :: AsaEA -> Int
+interp e = eval e []
+
