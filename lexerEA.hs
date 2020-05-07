@@ -47,6 +47,7 @@ lexer ('p':'r':'e':'d':' ':xs) = (Rsv Pred):(lexer xs)
 lexer ('s':'u':'c'::' ':xs) = (Rsv Suc):(lexer xs)
 lexer (x:xs)
 	| isDigit (x) = lexDigit x xs
+   | 
 	| otherwise = (Unkwn x):(lexer xs)
 
 
@@ -58,6 +59,6 @@ lexDigit x xs = let (digitos, resto) = break notDigit (x:xs);
 		        in 
 	               (Lit (valDigits 0 digitos)):(lexer resto)
 
-
+lexVar x xs = 
 
 				
