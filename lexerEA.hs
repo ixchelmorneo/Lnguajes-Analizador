@@ -67,6 +67,10 @@ lexDigit x xs = let (digitos, resto) = break notDigit (x:xs);
                   valDigits n (c:cs) = valDigits (10 * n + (valDigit c)) cs
             in 
                  (Lit (valDigits 0 digitos)):(lexer resto)
+<<<<<<< HEAD
+=======
+
+>>>>>>> e111c7e0c5f99ba8fb87cea0aa9bbbc106bc78bb
 
 
 
