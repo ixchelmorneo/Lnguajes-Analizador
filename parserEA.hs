@@ -1,4 +1,3 @@
----------------------------------------------------------------------
 module ParserEA where
 
 import LexerEA
@@ -168,6 +167,24 @@ parserF (Rsv Let:tokens) = (Let tkns2, rest)  -- Predecesor
 
 
 parserF tokens = error ("Error gramatical iniciando en : " ++ show tokens)
+
+parserG (Rsv Let:Ident nombre: Op “=”: tokens) = 
+        (Let exp1 nombre exp2, restoTokens)
+ where
+       (exp1, resto1) = parserEA  tokens
+         Verificar que la cabeza de resto1 sea la palabra reservada In, si es asi se forma la exp2
+        (exp2, resto2) = parserEA (tail resto1 )
+      Y la cabeza de la lista resto2 debería empezar con la palabra reservada End, de ser así se conformar correctamente el árbol.
+
+
+{-
+parserG (Rsv "let":restoTokens) = case restoTokens of 
+ (Identi id:restoTokens2) -> case restoTokens2 of    
+   (Oper '=':restoTokens3) -> let (e1, restoTokens4) = leer (isReservada "in") restoTokens3 in if (restoTokens4 /= []) then (Let (parser e1) id (parser (tail restoTokens4)), []) else error ("Se esperaba 'in'")
+   _ -> error ("Se esperaba un '=' despues del identificador '" ++ id ++ "'")
+ _ -> error ("Se esperaba un identificador despues de 'let'")
+-}
+
 
 
 
