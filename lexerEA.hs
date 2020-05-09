@@ -12,10 +12,10 @@ import Data.Char
    ****************************************************************-}
 
 data Token = ParA | ParC | Lit Int | Oper Char | Rsv PalRsv | Unkwn Char | Var String
-	deriving Show
+  deriving Show
 
-data PalRsv = Suc | Pred | Let | In | End
-	deriving Show
+data PalRsv = Suc | Pred|Let|In |End
+  deriving Show
 
 {- **************************************************************
    La función (lexer xs) recibe una cadena que corresponde a una 
@@ -42,27 +42,32 @@ lexer (' ' : xs) = (lexer xs)
 lexer ('(' : xs) = ParA:(lexer xs)
 lexer (')' : xs) = ParC:(lexer xs)
 lexer ('+' : xs) = (Oper '+'):(lexer xs)
+lexer ('-' : xs) = (Oper '-'):(lexer xs)
 lexer ('*' : xs) = (Oper '*'):(lexer xs)
-lexer ('l':'e':'t':' ':xs) = (Rsv Let):(lexe xs) 
-lexer ('i':'n':' ':xs) = (Rsv In):(lexer xs)
+lexer ('/' : xs) = (Oper '/'):(lexer xs)
+lexer ('=' : xs) = (Oper '='):(lexer xs)
+lexer('l':'e':'t':' ':xs) = (Rsv Let):(lexer xs) 
+lexer('i':'n':' ':xs) = (Rsv In):(lexer xs)
 lexer ('p':'r':'e':'d':' ':xs) = (Rsv Pred):(lexer xs)
 lexer ('s':'u':'c':' ':xs) = (Rsv Suc):(lexer xs)
+lexer ('e':'n':'d':' ':xs) = (Rsv End):(lexer xs)
+lexer (' ':xs) = lexer xs
 lexer (x:xs)
-	| isDigit (x) = lexDigit x xs
-	| otherwise = lexVar (x:xs)
-
-
-
-lexDigit x xs = let (digitos, resto) = break notDigit (x:xs);
-					  notDigit d = not (isDigit d);
-		 			  valDigit x = (ord x) - (ord '0');
-		              valDigits n [] = n;
-		              valDigits n (c:cs) = valDigits (10 * n + (valDigit c)) cs
-		        in 
-	               (Lit (valDigits 0 digitos)):(lexer resto)
+  | isDigit (x) = lexDigit x xs
+  | otherwise = lexVar (x:xs)
+  
 
 lexVar xs = let (variable, resto) = break (' '==) (xs);
                in (Var variable): lexer (resto)
 
+lexDigit x xs = let (digitos, resto) = break notDigit (x:xs);
+            notDigit d = not (isDigit d);
+            valDigit x = (ord x) - (ord '0');
+                  valDigits n [] = n;
+                  valDigits n (c:cs) = valDigits (10 * n + (valDigit c)) cs
+            in 
+                 (Lit (valDigits 0 digitos)):(lexer resto)
 
-				
+
+
+
