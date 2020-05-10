@@ -12,7 +12,7 @@ type RP = [VRP]
    d) Palabras reservedas: Suc y Pred }
    ****************************************************************-}
 
-data Token = ParA | ParC | Lit Int | Oper Char | Rsv PalRsv | Unkwn Char | Var String | Identi String
+data Token = ParA | ParC | Lit Int | Oper Char | Rsv PalRsv | Unkwn Char | Var String | Id String
  deriving Show
 
 data PalRsv = Suc | Pred|Let|In |End
@@ -64,6 +64,7 @@ lexDigit x xs = let (digitos, resto) = break notDigit (x:xs);
                   valDigits n (c:cs) = valDigits (10 * n + (valDigit c)) cs
             in 
                  (Lit (valDigits 0 digitos)):(lexer resto)
+
 
 
 lexVar xs = let (variable, resto) = break (' '==) (xs);
