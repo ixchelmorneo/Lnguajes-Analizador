@@ -20,8 +20,7 @@ type ID=String
               | 
    ****************************************************************-}
 
-data AsaEA = Const Int | Sum AsaEA AsaEA | Rest AsaEA AsaEA | Div AsaEA AsaEA | Prod AsaEA AsaEA | Scs AsaEA | Prd AsaEA|Vari ID|
-             Let  AsaEA ID AsaEA
+data AsaEA = Const Int | Sum AsaEA AsaEA | Rest AsaEA AsaEA | Div AsaEA AsaEA | Prod AsaEA AsaEA | Scs AsaEA | Prd AsaEA | Vari ID |Let AsaEA String AsaEA
              deriving Show
 
 {- ***************************************************************
@@ -168,8 +167,10 @@ parserF (Rsv Pred:tokens) = (Prd tkns2, rest)  -- Predecesor
 
 parserF (Var id:tkns) = (Vari id,tkns)
 
-parserF ((Rsv Let):(Var n):(Oper '='):xs) = 
-  case (restTkns1) of 
+
+
+
+parserF ((Rsv LLet):(Var n):(Oper '='):xs) = case (restTkns1) of 
     (Rsv In:restTkns1') -> case (restTkns2) of
                             (Rsv End:restTkns2') -> ((Let e n e2), restTkns2')
                             _                   -> error ("Error de sintaxis " ++ show restTkns2)

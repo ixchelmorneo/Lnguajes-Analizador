@@ -14,7 +14,7 @@ import Data.Char
 data Token = ParA | ParC | Lit Int | Oper Char | Rsv PalRsv | Unkwn Char | Var String
   deriving Show
 
-data PalRsv = Suc | Pred|Let|In |End
+data PalRsv = Suc | Pred | In | End | LLet
   deriving Show
 
 {- **************************************************************
@@ -45,8 +45,8 @@ lexer ('-' : xs) = (Oper '-'):(lexer xs)
 lexer ('*' : xs) = (Oper '*'):(lexer xs)
 lexer ('/' : xs) = (Oper '/'):(lexer xs)
 lexer ('=' : xs) = (Oper '='):(lexer xs)
-lexer('l':'e':'t':' ':xs) = (Rsv Let):(lexer xs) 
-lexer('i':'n':' ':xs) = (Rsv In):(lexer xs)
+lexer ('L':'e':'t':' ':xs) = (Rsv LLet):(lexer xs) 
+lexer ('i':'n':' ':xs) = (Rsv In):(lexer xs)
 lexer ('p':'r':'e':'d':' ':xs) = (Rsv Pred):(lexer xs)
 lexer ('s':'u':'c':' ':xs) = (Rsv Suc):(lexer xs)
 lexer ('e':'n':'d':' ':xs) = (Rsv End):(lexer xs)
