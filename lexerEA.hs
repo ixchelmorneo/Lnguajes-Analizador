@@ -1,8 +1,7 @@
 module LexerEA(Token(..), PalRsv(..),  lexer, lexDigit) where
 
 import Data.Char
-type Ident = String
-type RP = [VRP]
+
 {- ***************************************************************
    Definición del tipo de dato Token para clasificar cada uno de los
    componentes léxicos, los cuales pueden ser:
@@ -12,11 +11,11 @@ type RP = [VRP]
    d) Palabras reservedas: Suc y Pred }
    ****************************************************************-}
 
-data Token = ParA | ParC | Lit Int | Oper Char | Rsv PalRsv | Unkwn Char | Var String | Id String
- deriving Show
+data Token = ParA | ParC | Lit Int | Oper Char | Rsv PalRsv | Unkwn Char | Var String
+  deriving Show
 
 data PalRsv = Suc | Pred|Let|In |End
- deriving Show
+  deriving Show
 
 {- **************************************************************
    La función (lexer xs) recibe una cadena que corresponde a una 
@@ -35,7 +34,6 @@ data PalRsv = Suc | Pred|Let|In |End
     [ParA,Lit 3,Oper '+',Lit 8,ParC,Oper '*',Rsv Suc,Lit 7,Oper '+',Lit 4]
    *LexerEA> lexer "( 3 + 8 ) * suc ( 7 + 4 )"
     [ParA,Lit 3,Oper '+',Lit 8,ParC,Oper '*',Rsv Suc,ParA,Lit 7,Oper '+',Lit 4,ParC]
-
    **************************************************************-}
 lexer :: String -> [Token]
 lexer [] = []
@@ -44,28 +42,32 @@ lexer ('(' : xs) = ParA:(lexer xs)
 lexer (')' : xs) = ParC:(lexer xs)
 lexer ('+' : xs) = (Oper '+'):(lexer xs)
 lexer ('-' : xs) = (Oper '-'):(lexer xs)
-lexer ('/' : xs) = (Oper '/'):(lexer xs)
-lexer ('=' : xs) = (Oper '='):(lexer xs) 
 lexer ('*' : xs) = (Oper '*'):(lexer xs)
+lexer ('/' : xs) = (Oper '/'):(lexer xs)
+lexer ('=' : xs) = (Oper '='):(lexer xs)
 lexer('l':'e':'t':' ':xs) = (Rsv Let):(lexer xs) 
 lexer('i':'n':' ':xs) = (Rsv In):(lexer xs)
-lexer ('p':'r':'e':'d':xs) = (Rsv Pred):(lexer xs)
-lexer ('s':'u':'c':xs) = (Rsv Suc):(lexer xs)
+lexer ('p':'r':'e':'d':' ':xs) = (Rsv Pred):(lexer xs)
+lexer ('s':'u':'c':' ':xs) = (Rsv Suc):(lexer xs)
 lexer ('e':'n':'d':' ':xs) = (Rsv End):(lexer xs)
 lexer (' ':xs) = lexer xs
 lexer (x:xs)
-  | isDigit (x) = lexDigit x xs
-  | otherwise = lexVar (x:xs)
-
+        |isDigit (x) = lexDigit x xs
+        |isAlpha x = Var v: (lexer c)
+         where (v,c) = leeVar(x:xs) 
+  
 lexDigit x xs = let (digitos, resto) = break notDigit (x:xs);
-            notDigit d = not (isDigit d);
-            valDigit x = (ord x) - (ord '0');
-                  valDigits n [] = n;
-                  valDigits n (c:cs) = valDigits (10 * n + (valDigit c)) cs
+                                     notDigit d = not (isDigit d);
+                                     valDigit x = (ord x) - (ord '0');
+                                     valDigits n [] = n;
+                                     valDigits n (c:cs) = valDigits (10 * n + (valDigit c)) cs
             in 
                  (Lit (valDigits 0 digitos)):(lexer resto)
 
 
 
-lexVar xs = let (variable, resto) = break (' '==) (xs);
-               in (Var variable): lexer (resto)
+leeVar::String->(String, String)
+leeVar [] = ("","")
+leeVar (x:xs) = (takeWhile (isLetter) (x:xs), dropWhile (isLetter) (x:xs))
+
+
