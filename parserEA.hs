@@ -1,6 +1,10 @@
+---------------------------------------------------------------------
 module ParserEA where
 
 import LexerEA
+
+
+type ID=String
 
 {- ***************************************************************
    Definición del tipo de dato AsaEA, que corresponde a un árbol
@@ -16,7 +20,8 @@ import LexerEA
               | 
    ****************************************************************-}
 
-data AsaEA = Const Int | Sum AsaEA AsaEA | Rest AsaEA AsaEA | Div AsaEA AsaEA | Prod AsaEA AsaEA | Scs AsaEA | Prd AsaEA
+data AsaEA = Const Int | Sum AsaEA AsaEA | Rest AsaEA AsaEA | Div AsaEA AsaEA | Prod AsaEA AsaEA | Scs AsaEA | Prd AsaEA|Vari ID|
+             Let  AsaEA ID AsaEA
              deriving Show
 
 {- ***************************************************************
@@ -161,30 +166,18 @@ parserF (Rsv Pred:tokens) = (Prd tkns2, rest)  -- Predecesor
  where
   (tkns2,rest) = parserF tokens
 
-parserF (Rsv Let:tokens) = (Let tkns2, rest)  -- Predecesor
- where
-  (tkns2,rest) = parserF tokens
+parserF (Var id:tkns) = (Vari id,tkns)
 
+parserF ((Rsv Let):(Var n):(Oper '='):xs) = 
+  case (restTkns1) of 
+    (Rsv In:restTkns1') -> case (restTkns2) of
+                            (Rsv End:restTkns2') -> ((Let e n e2), restTkns2')
+                            _                   -> error ("Error de sintaxis " ++ show restTkns2)
+                            where (e2,restTkns2) = parserE (restTkns1')
+    _                  -> error ("Error de sintaxis " ++ show restTkns1)
+    where (e, restTkns1) = parserE xs
 
 parserF tokens = error ("Error gramatical iniciando en : " ++ show tokens)
-
-parserG (Rsv Let:Ident nombre: Op “=”: tokens) = 
-        (Let exp1 nombre exp2, restoTokens)
- where
-       (exp1, resto1) = parserEA  tokens
-         Verificar que la cabeza de resto1 sea la palabra reservada In, si es asi se forma la exp2
-        (exp2, resto2) = parserEA (tail resto1 )
-      Y la cabeza de la lista resto2 debería empezar con la palabra reservada End, de ser así se conformar correctamente el árbol.
-
-
-{-
-parserG (Rsv "let":restoTokens) = case restoTokens of 
- (Identi id:restoTokens2) -> case restoTokens2 of    
-   (Oper '=':restoTokens3) -> let (e1, restoTokens4) = leer (isReservada "in") restoTokens3 in if (restoTokens4 /= []) then (Let (parser e1) id (parser (tail restoTokens4)), []) else error ("Se esperaba 'in'")
-   _ -> error ("Se esperaba un '=' despues del identificador '" ++ id ++ "'")
- _ -> error ("Se esperaba un identificador despues de 'let'")
--}
-
 
 
 
